@@ -3,22 +3,24 @@
 # Exit on error
 set -e
 
-echo "🚀 Starting Yazi installation..."
+echo "🚀 Starting Yazi installation (Static Musl Build)..."
 
-# 1. Update and install dependencies 
-# (Removed sudo - assuming root or using a system that doesn't need it)
+# 1. Update and install dependencies
 apt-get update
 apt-get install -y ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick curl unzip
 
 # 2. Get latest version tag from GitHub API
 LATEST_TAG=$(curl -s https://api.github.com/repos/sxyazi/yazi/releases/latest | grep '"tag_name":' | cut -d '"' -f 4)
 
-# 3. Determine Architecture
+# 3. Determine Architecture (Using Musl for compatibility)
 ARCH=$(uname -m)
 if [ "$ARCH" = "x86_64" ]; then
-    FILE="yazi-x86_64-unknown-linux-gnu.zip"
+    FILE="yazi-x86_64-unknown-linux-musl.zip"
+elif [ "$ARCH" = "aarch64" ]; then
+    FILE="yazi-aarch64-unknown-linux-musl.zip"
 else
-    FILE="yazi-aarch64-unknown-linux-gnu.zip"
+    echo "❌ Unsupported architecture: $ARCH"
+    exit 1
 fi
 
 # 4. Download
